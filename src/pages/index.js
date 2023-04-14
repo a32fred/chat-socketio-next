@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 
 // Endereço do servidor Socket.IO
-const socket = io("https://c2d8-2804-620c-8f0-5500-7dcc-ce9-ded7-c605.ngrok-free.app", {transports:['websocket']});
+const socket = io("https://socketio.a32fred.repl.co", {transports:['websocket']});
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
