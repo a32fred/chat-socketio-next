@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = 'http://localhost:3322';
+const apiUrl = 'https://auth-socketio.frederico-carlo.repl.co';
 
 const api = axios.create({
   baseURL: apiUrl,
