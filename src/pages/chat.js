@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 
 // Endereço do servidor Socket.IO
-const socket = io("http://localhost:3322", { transports: ['websocket'] });
+const socket = io("https://auth-socketio.frederico-carlo.repl.co", { transports: ['websocket'] });
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);

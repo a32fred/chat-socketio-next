@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Router from "next/router";
 import axios from "../pages/api/axios_api"
-import { data } from "autoprefixer";
 
 
 function LoginPage() {
