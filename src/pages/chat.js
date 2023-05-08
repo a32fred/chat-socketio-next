@@ -15,31 +15,30 @@ export default function Chat() {
   
   
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-
-    if (token === null) {
-      setIsTokenValid(false)
-    }
-  
-    try {
-      const res = axios.get('/verify', {
+    async function verifyToken() {
+      const token = localStorage.getItem('token');
+      const res = await fetch('https://auth-socketio.frederico-carlo.repl.co/verify', {
         headers: {
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
-      })
-      
-      if (res.ok) {
-        const data = res.json()
-        setIsTokenValid(true)
-        setUserName(data.username)
-      }
+      });
 
-    } catch (error) {
-      console.log(error)
-      setIsTokenValid(false)
+      if (!token) {
+        setIsTokenValid(false)
+      }
+    
+
+      if (res.ok) {
+        const data = await res.json();
+        setUserName(data.username);
+        setIsTokenValid(true)
+      } else {
+        console.error('Erro ao verificar token');
+      }
     }
-  }, [])
+
+    verifyToken();
+  }, []);
 
 
   useEffect(() => {

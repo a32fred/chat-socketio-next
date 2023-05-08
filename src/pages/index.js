@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Router from "next/router";
 import axios from "../pages/api/axios_api"
 
@@ -9,13 +9,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // useEffect(()=>{
-  //   const token = localStorage.getItem("token")  
-  //   if (token) {
-  //     Router.push('/chat');
-  //   }
-  
-  // },[])
+
 
   const handleLogin = async (event) => {
     event.preventDefault();
