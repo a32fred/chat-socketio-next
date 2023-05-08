@@ -1,34 +1,42 @@
-import  Router  from "next/router";
+import Router from "next/router";
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
+import axios from "../pages/api/axios_api";
 
 // Endereço do servidor Socket.IO
 const socket = io("https://auth-socketio.frederico-carlo.repl.co", { transports: ['websocket'] });
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
-  const [isTokenValid, setIsTokenValid] = useState(true);
+  const [isTokenValid, setIsTokenValid] = useState(false);
   const [input, setInput] = useState("");
+  const [userName, setUserName] = useState("");
 
-
-
+  
+  
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log(token);
+
+
     if (token === null) {
       setIsTokenValid(false)
     }
-
+  
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-
-      // checa se o token expirou
-      if (Date.now() >= payload.exp * 1000) {
-        setIsTokenValid(false)
+      const res = axios.get('/verify', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      
+      if (res.ok) {
+        const data = res.json()
+        setIsTokenValid(true)
+        setUserName(data.username)
       }
-      setIsTokenValid(true)
 
     } catch (error) {
+      console.log(error)
       setIsTokenValid(false)
     }
   }, [])
@@ -46,10 +54,8 @@ export default function Chat() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
     socket.emit("chat message", input);
     setInput("");
-
   };
 
   if (isTokenValid) {
@@ -60,7 +66,7 @@ export default function Chat() {
             <div key={index} className="p-2">
               <div className="flex items-end">
                 <div className="bg-gray-800 rounded-lg p-2 max-w-xs">
-                  <p className="text-sm break-words">{message}</p>
+                  <p className="text-sm break-words">{`${userName}: ${message}`}</p>
                 </div>
               </div>
             </div>

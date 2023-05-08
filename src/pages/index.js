@@ -1,29 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Router from "next/router";
 import axios from "../pages/api/axios_api"
 
 
 function LoginPage() {
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  // useEffect(()=>{
+  //   const token = localStorage.getItem("token")  
+  //   if (token) {
+  //     Router.push('/chat');
+  //   }
+  
+  // },[])
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
     try {
-      const {data} = await axios.post("/login", {
+      const { data } = await axios.post("/login", {
         username: username,
         password: password,
       });
       localStorage.setItem('token', data.token);
       Router.push('/chat');
     } catch (error) {
-      console.log(error.response.data.msg)
+      if (erro) {
+        setErrorMessage(error.response.data.message);
+      }
     }
   }
 
-  console.log("renderizou")
+
   return (
     <div className="flex justify-center items-center h-screen">
       <form onSubmit={handleLogin} className="w-1/3">
