@@ -1,47 +1,39 @@
-import { useState } from "react";
-import Router from "next/router";
-import axios from "../pages/api/axios_api"
+import { AuthContext } from "../context/authContext"
+import { useContext, useState } from "react";
+import { useForm } from "react-hook-form";
 
 
 function LoginPage() {
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { register, handleSubmit } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
+  const { singIn } = useContext(AuthContext);
 
-
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
+  async function handleLogin(data) {
     try {
-      const { data } = await axios.post("/login", {
-        username: username,
-        password: password,
-      });
-      localStorage.setItem('token', data.token);
-      Router.push('/chat');
+      await singIn(data)
     } catch (error) {
-      if (erro) {
-        setErrorMessage(error.response.data.message);
-      }
+        if (error) {
+            setErrorMessage(error.response.data.msg)
+        }
     }
   }
 
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleLogin} className="w-1/3">
+      <form onSubmit={handleSubmit(handleLogin)} className="w-1/3">
         <div className="mb-4">
           <label htmlFor="username" className="block mb-2">
             Username
           </label>
           <input
+            {...register("username")}
             type="text"
             id="username"
+            required
+            placeholder="username"
             className="w-full px-3 py-2 border rounded bg-slate-600"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
           />
         </div>
         <div className="mb-4">
@@ -49,12 +41,13 @@ function LoginPage() {
             Password
           </label>
           <input
+            {...register("password")}
             type="password"
             id="password"
+            required
+            placeholder="password"
             className="w-full px-3 py-2 border rounded bg-slate-600"
-            value={password}
             autoComplete="on"
-            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         {errorMessage && (
