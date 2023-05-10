@@ -22,6 +22,7 @@ function LoginPage() {
 
   return (
     <div className="flex justify-center items-center h-screen">
+    <title>Login</title>
       <form onSubmit={handleSubmit(handleLogin)} className="w-1/3">
         <div className="mb-4">
           <label htmlFor="username" className="block mb-2">

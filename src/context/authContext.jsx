@@ -1,5 +1,5 @@
-import React, { createContext, useState } from 'react';
-import { setCookie } from "nookies"
+import React, { createContext, useState, useEffect } from 'react';
+import { setCookie, parseCookies } from "nookies"
 import Router from 'next/router';
 import api from '@/services/axios_api';
 
@@ -18,14 +18,43 @@ export function AuthProvider({ children }) {
         });
         setCookie(undefined, 'token', data.token, {
             maxAge: 60 * 60 * 1, // 60 minutes   
-            sameSite: 'lax'  
+            sameSite: 'lax'
         });
-        
+
         setUser(username)
         console.log(user)
-        
-        Router.push('/chat')    
+
+        Router.push('/chat')
     }
+
+    useEffect(() => {
+        const { token } = parseCookies()
+
+        async function verifyToken() {
+            const res = await fetch('https://auth-socketio.frederico-carlo.repl.co/verify', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();             
+                return data.username
+            } else {
+                console.error('Erro ao verificar token');
+            }
+        }
+
+        if (token) {
+            try {
+                verifyToken().then(user => setUser(user))               
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+    }, []);
+
     return (
         <AuthContext.Provider value={{ user, isAuthenticated, singIn }}>
             {children}
