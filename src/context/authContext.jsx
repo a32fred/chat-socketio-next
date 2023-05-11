@@ -2,7 +2,6 @@ import React, { createContext, useState, useEffect } from 'react';
 import { setCookie, parseCookies } from "nookies"
 import Router from 'next/router';
 import api from '@/services/axios_api';
-import { resolve } from 'styled-jsx/css';
 
 export const AuthContext = createContext()
 
