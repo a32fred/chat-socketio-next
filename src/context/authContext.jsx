@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect } from 'react';
 import { setCookie, parseCookies } from "nookies"
 import Router from 'next/router';
 import api from '@/services/axios_api';
+import { resolve } from 'styled-jsx/css';
 
 export const AuthContext = createContext()
 
@@ -21,8 +22,8 @@ export function AuthProvider({ children }) {
             sameSite: 'lax'
         });
 
+        api.defaults.headers['Authorization'] = `Bearer ${data.token}`
         setUser(username)
-        console.log(user)
 
         Router.push('/chat')
     }
@@ -31,23 +32,19 @@ export function AuthProvider({ children }) {
         const { token } = parseCookies()
 
         async function verifyToken() {
-            const res = await fetch('https://auth-socketio.frederico-carlo.repl.co/verify', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                const data = await res.json();             
+            const res = await api.get('https://auth-socketio.frederico-carlo.repl.co/verify').then(data =>{
                 return data.username
-            } else {
-                console.error('Erro ao verificar token');
-            }
+            })
+
         }
 
         if (token) {
             try {
-                verifyToken().then(user => setUser(user))               
+                verifyToken()
+                    .then(user => {
+                        setUser(user)
+                    })
+                    
             } catch (error) {
                 console.error(error)
             }
