@@ -11,6 +11,7 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
+  const messagesRef = useRef(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -33,10 +34,10 @@ export default function Chat() {
   useEffect(() => {
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
+      if (messagesRef.current) {
+        messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+      }
     });
-
-    
-
     return () => {
       socket.off("chat message");
     };
@@ -44,7 +45,7 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-1 overflow-y-scroll bg-gray-950 text-white">
+      <div className="flex-1 overflow-y-scroll bg-gray-950 text-white" ref={messagesRef}>
         {messages.map((message, index) => (
           <div key={index} className={`p-2 ${message.sender === user ? "self-end" : "self-start"}`}>
             <div className={`flex items-end ${message.sender === user ? "flex-row-reverse" : ""}`}>
