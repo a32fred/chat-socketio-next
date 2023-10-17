@@ -46,7 +46,14 @@ const Chat = () => {
         }
       });
 
+      const handleBeforeUnload = () => {
+        newSocket.emit("user disconnect", { userId: savedUsername });
+      };
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
       return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
         newSocket.disconnect();
       };
     }
@@ -73,8 +80,6 @@ const Chat = () => {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
-
-
 
   return (
     <div className="flex flex-col h-screen">
