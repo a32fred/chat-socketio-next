@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { useRouter } from "next/router";
 import io from "socket.io-client";
 
@@ -22,16 +22,19 @@ const Chat = () => {
   });
 
 
-  useEffect(() => {
-    const savedUsername = localStorage.getItem("username");
-    const sevedToken = localStorage.getItem("token");
 
-    if (!savedUsername || !token) {
-      router.push("/");
-      return;
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+
+      const savedUsername = localStorage.getItem("username");
+      const savedToken = localStorage.getItem("token");
+      if (!savedUsername || !savedToken) {
+        router.push("/");
+        return;
+      }
+      setUser(savedUsername);
+      setToken(savedToken);
     }
-    setUser(savedUsername);
-    setToken(sevedToken)
 
 
     if ("Notification" in window) {
@@ -41,6 +44,7 @@ const Chat = () => {
         }
       });
     }
+
 
 
     socket.on("chat message", (msg) => {
