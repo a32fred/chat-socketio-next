@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import io from "socket.io-client";
 
@@ -7,19 +7,13 @@ import io from "socket.io-client";
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
-  const [token, setToken] = useState("")
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
 
-  const socket = io("https://socketio.a32fred.repl.co", {
-    transports: ["websocket"],
-    query: {
-      token: token,
-    }
-  });
+  const socket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"]});
 
 
 
@@ -56,6 +50,7 @@ const Chat = () => {
       if (Notification.permission === "granted" && user !== msg.sender) {
         const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
           body: msg.message,
+          icon: "https://www.shareicon.net/data/2015/09/18/102854_archlinux_512x512.png"
         });
       }
     });
