@@ -29,9 +29,11 @@ const Chat = () => {
 
   useEffect(() => {
     const savedUsername = localStorage.getItem("username");
-    if (!savedUsername) {
+    const token = localStorage.getItem("token");
+
+    if (!savedUsername || !token) {
       router.push("/");
-      return; // Retorna para evitar a execução do restante do código
+      return;
     }
     setUser(savedUsername);
 
@@ -45,7 +47,12 @@ const Chat = () => {
   }, [router]);
 
   useEffect(() => {
-    const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
+    const socket = io("https://socketio.a32fred.repl.co", { 
+      transports: ["websocket"], 
+      query:{
+        token: token
+      }
+    });
 
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
@@ -63,7 +70,7 @@ const Chat = () => {
     return () => {
       socket.off("chat message");
     };
-  }, [user, messages]);
+  }, [router, user, messages]);
 
   useEffect(() => {
     if (messagesRef.current) {
