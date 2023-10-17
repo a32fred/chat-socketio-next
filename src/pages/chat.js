@@ -6,7 +6,7 @@ import io from "socket.io-client";
 const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
 
 export default function Chat() {
-  const user = usuario_gambiarra
+  const user = "usuario_gambiarra"
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
