@@ -24,6 +24,14 @@ const Chat = () => {
       const newSocket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"], query: { token: savedToken, userId: savedUsername } });
       setSocket(newSocket);
 
+      fetch('https://socketio.a32fred.repl.co/loadMessages')
+      .then(response => response.json())
+      .then(data => {
+        setMessages(data);
+      })
+      .catch(error => console.error('Erro ao carregar mensagens:', error));
+
+
       newSocket.on("chat message", (msg) => {
         setMessages(prevMessages => [...prevMessages, msg]);
         if (messagesRef.current) {
