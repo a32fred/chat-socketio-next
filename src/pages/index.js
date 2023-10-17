@@ -24,17 +24,25 @@ export default function Introduction() {
   };
 
   return (
-    <div>
-      <h1>Bem-vindo ao Chat App</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={username}
-          onChange={handleInputChange}
-          placeholder="Digite seu nome"
-        />
-        <button type="submit">Entrar no Chat</button>
-      </form>
+    <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+      <div className="max-w-md p-8 bg-gray-800 rounded-lg">
+        <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Chat App</h1>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={username}
+            onChange={handleInputChange}
+            placeholder="Digite seu nome"
+            className="bg-slate-800 p-2 rounded-lg w-full mb-4"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
+          >
+            Entrar no Chat
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
