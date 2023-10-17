@@ -10,9 +10,7 @@ const Chat = () => {
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
-
-  // Mova a definição do socket para o escopo do componente
-  const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -23,6 +21,8 @@ const Chat = () => {
         return;
       }
       setUser(savedUsername);
+      const newSocket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"], query: { token: savedToken }});
+      setSocket(newSocket);
 
       if ("Notification" in window) {
         Notification.requestPermission().then(permission => {
@@ -32,8 +32,8 @@ const Chat = () => {
         });
       }
 
-      socket.on("chat message", (msg) => {
-        setMessages([...messages, msg]);
+      newSocket.on("chat message", (msg) => {
+        setMessages(prevMessages => [...prevMessages, msg]);
         if (messagesRef.current) {
           messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
         }
@@ -47,10 +47,10 @@ const Chat = () => {
       });
 
       return () => {
-        socket.off("chat message");
+        newSocket.disconnect();
       };
     }
-  }, [router, user, messages]);
+  }, [router, user]);
 
   const handleReplyTo = (message) => {
     if (replyTo && replyTo.id === message.id) {
@@ -62,7 +62,7 @@ const Chat = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim()) return; // Verifica se a mensagem está vazia
     socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
     setInput("");
     setReplyTo(null);
@@ -73,6 +73,7 @@ const Chat = () => {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
+
 
 
   return (

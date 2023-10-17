@@ -13,7 +13,7 @@ export default function Introduction() {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://supreme-parakeet-rq6w9j9vr73px6p-3001.app.github.dev/api/authenticate', {
+      const response = await fetch('https://atzurtrah.a32fred.repl.co/api/authenticate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
