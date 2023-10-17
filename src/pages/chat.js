@@ -11,17 +11,7 @@ const Chat = () => {
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
 
-  useEffect(() => {
-    // Obtenha o token do localStorage
-    const token = localStorage.getItem("token");
 
-    // Certifique-se de ter o token aqui.
-    const socket = io("https://socketio.a32fred.repl.co", {
-      transports: ["websocket"],
-      query: {
-        token: token, // Envie o token para o servidor socket.io
-      }
-    });
 
 
   const handleReplyTo = (message) => {
@@ -43,6 +33,16 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    // Certifique-se de ter o token aqui.
+    const socket = io("https://socketio.a32fred.repl.co", {
+      transports: ["websocket"],
+      query: {
+        token: token, // Envie o token para o servidor socket.io
+      }
+    });
+    
     if (typeof window !== "undefined") {
       const savedUsername = localStorage.getItem("username");
       if (savedUsername) {
@@ -77,13 +77,13 @@ const Chat = () => {
       socket.off("chat message");
     };
   }, [router, messages, user]);
-  
+
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages, messagesRef]);
-  
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-y-scroll bg-gray-950 text-white" ref={messagesRef}>
@@ -143,6 +143,7 @@ const Chat = () => {
             </button>
           </div>
         )}
-     </div>
+      </div>
+    </div>
   )
 }
