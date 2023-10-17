@@ -1,37 +1,39 @@
-import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
-export default function LoginPage() {
-  const history = useHistory();
+export default function Introduction() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    // Verifica se o nome do usuário já está no localStorage
+    const savedUsername = localStorage.getItem("username");
+    if (savedUsername) {
+      router.push("/chat");
+    }
+  }, [router]);
 
   const handleInputChange = (e) => {
     setUsername(e.target.value);
   };
 
-  const handleFormSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    localStorage.setItem("user", username);
-    history.push("/chat");
+    localStorage.setItem("username", username);
+    router.push("/chat");
   };
-
-  // Verificar se já existe um usuário no localStorage
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
-    history.push("/chat");
-  }
 
   return (
     <div>
-      <h2>Informe seu nome</h2>
-      <form onSubmit={handleFormSubmit}>
-        <input 
-          type="text" 
-          value={username} 
-          onChange={handleInputChange} 
-          required 
+      <h1>Bem-vindo ao Chat App</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={username}
+          onChange={handleInputChange}
+          placeholder="Digite seu nome"
         />
-        <button type="submit">Entrar</button>
+        <button type="submit">Entrar no Chat</button>
       </form>
     </div>
   );

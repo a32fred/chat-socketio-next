@@ -1,12 +1,24 @@
-import { useRef, useState, useContext, useEffect } from "react";
-
-import { parseCookies } from "nookies";
+import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import io from "socket.io-client";
 
 const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
 
 export default function Chat() {
-  const user = "usuario_gambiarra"
+  const router = useRouter();
+
+  // Verifica se há um usuário no localStorage
+  const savedUsername = localStorage.getItem("username");
+
+  // Se não houver, redireciona para a página de introdução
+  useEffect(() => {
+    if (!savedUsername) {
+      router.push("/");
+    }
+  }, [router, savedUsername]);
+
+  const user = savedUsername || "usuario_gambiarra"; // Se não houver, usa o padrão
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
