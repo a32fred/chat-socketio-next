@@ -21,7 +21,7 @@ const Chat = () => {
         return;
       }
       setUser(savedUsername);
-      const newSocket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"], query: { token: savedToken, userId: savedUsername } });
+      const newSocket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"], query: { token: savedToken, userId: savedUsername } });
       setSocket(newSocket);
 
       if ("Notification" in window) {
@@ -46,14 +46,7 @@ const Chat = () => {
         }
       });
 
-      const handleBeforeUnload = () => {
-        newSocket.emit("user disconnect", { userId: savedUsername });
-      };
-
-      window.addEventListener("beforeunload", handleBeforeUnload);
-
       return () => {
-        window.removeEventListener("beforeunload", handleBeforeUnload);
         newSocket.disconnect();
       };
     }
@@ -80,6 +73,15 @@ const Chat = () => {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
+
+
+  const handleDisconnect = () => {
+    if (socket) {
+      socket.emit('disconnect me'); // Envia um sinal para se desconectar
+    }
+  };
+
+
 
   return (
     <div className="flex flex-col h-screen">
@@ -141,6 +143,12 @@ const Chat = () => {
           </div>
         )}
       </div>
+      <button
+        onClick={handleDisconnect}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+      >
+        Desconectar
+      </button>
     </div>
   );
 };
