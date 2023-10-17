@@ -75,13 +75,6 @@ const Chat = () => {
   }, [messages]);
 
 
-  const handleDisconnect = () => {
-    if (socket) {
-      socket.emit('disconnect me'); // Envia um sinal para se desconectar
-    }
-  };
-
-
 
   return (
     <div className="flex flex-col h-screen">
@@ -143,12 +136,6 @@ const Chat = () => {
           </div>
         )}
       </div>
-      <button
-        onClick={handleDisconnect}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
-      >
-        Desconectar
-      </button>
     </div>
   );
 };
