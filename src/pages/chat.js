@@ -11,54 +11,41 @@ const Chat = () => {
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
 
-
-
-
   const handleReplyTo = (message) => {
     if (replyTo && replyTo.id === message.id) {
       setReplyTo(null);
-      inputRef.current.focus();
     } else {
       setReplyTo({ id: message.id, sender: message.sender, message: message.message });
-      inputRef.current.focus();
     }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    if (!input.trim()) return; // Verifica se a mensagem está vazia
     socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
     setInput("");
     setReplyTo(null);
-    inputRef.current.focus();
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    // Certifique-se de ter o token aqui.
-    const socket = io("https://socketio.a32fred.repl.co", {
-      transports: ["websocket"],
-      query: {
-        token: token, // Envie o token para o servidor socket.io
-      }
-    });
-    
-    if (typeof window !== "undefined") {
-      const savedUsername = localStorage.getItem("username");
-      if (savedUsername) {
-        setUser(savedUsername);
-      } else {
-        router.push("/");
-      }
-
-      if ("Notification" in window) {
-        Notification.requestPermission().then(permission => {
-          if (permission === "granted") {
-            // Permissão concedida, agora você pode enviar notificações
-          }
-        });
-      }
+    const savedUsername = localStorage.getItem("username");
+    if (!savedUsername) {
+      router.push("/");
+      return; // Retorna para evitar a execução do restante do código
     }
+    setUser(savedUsername);
+
+    if ("Notification" in window) {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          // Permissão concedida, agora você pode enviar notificações
+        }
+      });
+    }
+  }, [router]);
+
+  useEffect(() => {
+    const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
 
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
@@ -76,13 +63,13 @@ const Chat = () => {
     return () => {
       socket.off("chat message");
     };
-  }, [router, messages, user]);
+  }, [user, messages]);
 
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
-  }, [messages, messagesRef]);
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -122,8 +109,7 @@ const Chat = () => {
             />
             <button
               className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
-              onClick={handleSubmit}
-              disabled={!input.trim()}
+              type="submit"
             >
               Send
             </button>
@@ -147,3 +133,5 @@ const Chat = () => {
     </div>
   )
 }
+
+export default Chat;
