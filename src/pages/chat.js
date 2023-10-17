@@ -66,6 +66,13 @@ export default function Chat() {
       socket.off("chat message");
     };
   }, [router, messages, user]);
+  
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
+  }, [messages, messagesRef]);
+  
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-y-scroll bg-gray-950 text-white" ref={messagesRef}>
