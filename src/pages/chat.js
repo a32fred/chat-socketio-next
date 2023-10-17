@@ -37,6 +37,13 @@ const Chat = () => {
     }
     setUser(savedUsername);
 
+    const socket = io("https://socketio.a32fred.repl.co", {
+      transports: ["websocket"],
+      query: {
+        token: token,
+      }
+    });
+
     if ("Notification" in window) {
       Notification.requestPermission().then(permission => {
         if (permission === "granted") {
@@ -44,15 +51,6 @@ const Chat = () => {
         }
       });
     }
-  }, [router]);
-
-  useEffect(() => {
-    const socket = io("https://socketio.a32fred.repl.co", { 
-      transports: ["websocket"], 
-      query:{
-        token: token
-      }
-    });
 
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
