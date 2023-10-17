@@ -21,16 +21,8 @@ const Chat = () => {
         return;
       }
       setUser(savedUsername);
-      const newSocket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"], query: { token: savedToken, userId: savedUsername } });
+      const newSocket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"], query: { token: savedToken, userId: savedUsername } });
       setSocket(newSocket);
-
-      if ("Notification" in window) {
-        Notification.requestPermission().then(permission => {
-          if (permission === "granted") {
-            // Permissão concedida, agora você pode enviar notificações
-          }
-        });
-      }
 
       newSocket.on("chat message", (msg) => {
         setMessages(prevMessages => [...prevMessages, msg]);
@@ -73,8 +65,6 @@ const Chat = () => {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
-
-
 
   return (
     <div className="flex flex-col h-screen">
