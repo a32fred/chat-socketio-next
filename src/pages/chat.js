@@ -6,18 +6,19 @@ const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"
 
 export default function Chat() {
   const router = useRouter();
+  const [user, setUser] = useState("");
 
-  // Verifica se há um usuário no localStorage
-  const savedUsername = localStorage.getItem("username");
-
-  // Se não houver, redireciona para a página de introdução
   useEffect(() => {
-    if (!savedUsername) {
-      router.push("/");
+    // Verifica se está no ambiente do navegador antes de acessar o localStorage
+    if (typeof window !== "undefined") {
+      const savedUsername = localStorage.getItem("username");
+      if (savedUsername) {
+        setUser(savedUsername);
+      } else {
+        router.push("/");
+      }
     }
-  }, [router, savedUsername]);
-
-  const user = savedUsername || "usuario_gambiarra"; // Se não houver, usa o padrão
+  }, [router]);
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
