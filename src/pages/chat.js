@@ -13,10 +13,17 @@ const Chat = () => {
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
 
-  useEffect(() => {
-    const savedUsername = localStorage.getItem("username");
-    const token = localStorage.getItem("token");
+  const savedUsername = localStorage.getItem("username");
+  const token = localStorage.getItem("token");
 
+  const socket = io("https://socketio.a32fred.repl.co", {
+    transports: ["websocket"],
+    query: {
+      token: token,
+    }
+  });
+
+  useEffect(() => {
     if (!savedUsername || !token) {
       router.push("/");
       return;
@@ -31,13 +38,6 @@ const Chat = () => {
         }
       });
     }
-
-    const socket = io("https://socketio.a32fred.repl.co", {
-      transports: ["websocket"],
-      query: {
-        token: token,
-      }
-    });
 
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
