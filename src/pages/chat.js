@@ -143,7 +143,6 @@ const Chat = () => {
             </button>
           </div>
         )}
-      </div>
-    </div>
+     </div>
   )
 }
