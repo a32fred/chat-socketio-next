@@ -2,6 +2,8 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import io from "socket.io-client";
 
+
+
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
@@ -10,22 +12,6 @@ const Chat = () => {
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
-
-  const handleReplyTo = (message) => {
-    if (replyTo && replyTo.id === message.id) {
-      setReplyTo(null);
-    } else {
-      setReplyTo({ id: message.id, sender: message.sender, message: message.message });
-    }
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (!input.trim()) return; // Verifica se a mensagem está vazia
-    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
-    setInput("");
-    setReplyTo(null);
-  };
 
   useEffect(() => {
     const savedUsername = localStorage.getItem("username");
@@ -37,12 +23,6 @@ const Chat = () => {
     }
     setUser(savedUsername);
 
-    const socket = io("https://socketio.a32fred.repl.co", {
-      transports: ["websocket"],
-      query: {
-        token: token,
-      }
-    });
 
     if ("Notification" in window) {
       Notification.requestPermission().then(permission => {
@@ -51,6 +31,13 @@ const Chat = () => {
         }
       });
     }
+
+    const socket = io("https://socketio.a32fred.repl.co", {
+      transports: ["websocket"],
+      query: {
+        token: token,
+      }
+    });
 
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
@@ -69,6 +56,24 @@ const Chat = () => {
       socket.off("chat message");
     };
   }, [router, user, messages]);
+
+  const handleReplyTo = (message) => {
+    if (replyTo && replyTo.id === message.id) {
+      setReplyTo(null);
+    } else {
+      setReplyTo({ id: message.id, sender: message.sender, message: message.message });
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (!input.trim()) return; // Verifica se a mensagem está vazia
+    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
+    setInput("");
+    setReplyTo(null);
+  };
+
+
 
   useEffect(() => {
     if (messagesRef.current) {
