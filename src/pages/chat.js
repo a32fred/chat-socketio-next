@@ -21,7 +21,7 @@ const Chat = () => {
         return;
       }
       setUser(savedUsername);
-      const newSocket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"], query: { token: savedToken, userID: savedUsername } });
+      const newSocket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"], query: { token: savedToken, userId: savedUsername } });
       setSocket(newSocket);
 
       if ("Notification" in window) {
