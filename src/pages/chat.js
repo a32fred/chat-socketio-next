@@ -7,32 +7,11 @@ const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"
 export default function Chat() {
   const router = useRouter();
   const [user, setUser] = useState("");
-
-  useEffect(() => {
-    // Verifica se está no ambiente do navegador antes de acessar o localStorage
-    if (typeof window !== "undefined") {
-      const savedUsername = localStorage.getItem("username");
-      if (savedUsername) {
-        setUser(savedUsername);
-      } else {
-        router.push("/");
-      }
-    }
-  }, [router]);
-
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
-    setInput("");
-    setReplyTo(null);
-    inputRef.current.focus();
-  };
 
   const handleReplyTo = (message) => {
     if (replyTo && replyTo.id === message.id) {
@@ -44,25 +23,49 @@ export default function Chat() {
     }
   };
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
+    setInput("");
+    setReplyTo(null);
+    inputRef.current.focus();
+  };
+
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedUsername = localStorage.getItem("username");
+      if (savedUsername) {
+        setUser(savedUsername);
+      } else {
+        router.push("/");
+      }
+
+      if ("Notification" in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            // Permissão concedida, agora você pode enviar notificações
+          }
+        });
+      }
+    }
+
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
       if (messagesRef.current) {
         messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
       }
 
-      // Enviar notificação
       if (Notification.permission === "granted" && user !== msg.sender) {
         const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
           body: msg.message,
         });
       }
     });
+
     return () => {
       socket.off("chat message");
     };
-  }, [messages, user]);
-
+  }, [router, messages, user]);
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-y-scroll bg-gray-950 text-white" ref={messagesRef}>
@@ -92,20 +95,20 @@ export default function Chat() {
       <div className="relative">
         <form onSubmit={handleSubmit} className="flex flex-col items-center bg-gray-950 p-2">
           <div className="flex w-full">
-        <input
-          ref={inputRef}
-          className="flex-1 bg-slate-800 px-2 py-1 rounded-lg mr-2"
-          type="text"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-        />
-        <button
-          className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
-          onClick={handleSubmit}
-          disabled={!input.trim()}
-        >
-          Send
-        </button>
+            <input
+              ref={inputRef}
+              className="flex-1 bg-slate-800 px-2 py-1 rounded-lg mr-2"
+              type="text"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+            />
+            <button
+              className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
+              onClick={handleSubmit}
+              disabled={!input.trim()}
+            >
+              Send
+            </button>
           </div>
         </form>
         {replyTo && (
