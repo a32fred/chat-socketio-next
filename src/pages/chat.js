@@ -2,8 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import io from "socket.io-client";
 
-
-
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
@@ -12,52 +10,7 @@ const Chat = () => {
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
-
-  const socket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"]});
-
-
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-
-      const savedUsername = localStorage.getItem("username");
-      const savedToken = localStorage.getItem("token");
-      if (!savedUsername || !savedToken) {
-        router.push("/");
-        return;
-      }
-      setUser(savedUsername);
-    }
-
-
-    if ("Notification" in window) {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          // Permissão concedida, agora você pode enviar notificações
-        }
-      });
-    }
-
-
-
-    socket.on("chat message", (msg) => {
-      setMessages([...messages, msg]);
-      if (messagesRef.current) {
-        messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-      }
-
-      if (Notification.permission === "granted" && user !== msg.sender) {
-        const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
-          body: msg.message,
-          icon: "https://www.shareicon.net/data/2015/09/18/102854_archlinux_512x512.png"
-        });
-      }
-    });
-
-    return () => {
-      socket.off("chat message");
-    };
-  }, [router, user, messages]);
+  const token = localStorage.getItem("token");
 
   const handleReplyTo = (message) => {
     if (replyTo && replyTo.id === message.id) {
@@ -69,20 +22,58 @@ const Chat = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!input.trim()) return; // Verifica se a mensagem está vazia
-    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
+    if (!input.trim()) return;
+    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo, token: token });
     setInput("");
     setReplyTo(null);
   };
 
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("username");
+    const token = localStorage.getItem("token");
 
+    if (!savedUsername || !token) {
+      router.push("/");
+      return;
+    }
+    setUser(savedUsername);
+
+    const socket = io("https://socketio.a32fred.repl.co", {
+      transports: ["websocket"],
+    });
+
+    if ("Notification" in window) {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          // Permissão concedida, agora você pode enviar notificações
+        }
+      });
+    }
+
+    socket.on("chat message", (msg) => {
+      setMessages([...messages, msg]);
+      if (messagesRef.current) {
+        messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+      }
+
+      if (Notification.permission === "granted" && user !== msg.sender) {
+        const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
+          body: msg.message,
+        });
+      }
+    });
+
+    return () => {
+      socket.off("chat message");
+    };
+  }, [router, user, messages]);
 
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
-
+  
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-y-scroll bg-gray-950 text-white" ref={messagesRef}>
