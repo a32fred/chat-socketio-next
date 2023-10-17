@@ -27,7 +27,6 @@ const Chat = () => {
         return;
       }
       setUser(savedUsername);
-      setToken(savedToken);
     }
 
 
