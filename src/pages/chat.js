@@ -1,12 +1,12 @@
 import { useRef, useState, useContext, useEffect } from "react";
-import { AuthContext } from "@/context/authContext";
+
 import { parseCookies } from "nookies";
 import io from "socket.io-client";
 
-const socket = io("https://auth-socketio.frederico-carlo.repl.co", { transports: ["websocket"] });
+const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
 
 export default function Chat() {
-  const { user } = useContext(AuthContext);
+  const user = usuario_gambiarra
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
@@ -105,21 +105,4 @@ export default function Chat() {
       </div>
     </div>
   )
-}
-
-export async function getServerSideProps(context) {
-  const { token } = parseCookies(context)
-
-  if (!token) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false
-      }
-    }
-  }
-
-  return {
-    props: {}, // will be passed to the page component as props
-  };
 }
