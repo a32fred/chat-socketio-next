@@ -10,7 +10,46 @@ const Chat = () => {
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
-  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedUsername = localStorage.getItem("username");
+      const savedToken = localStorage.getItem("token");
+      if (!savedUsername || !savedToken) {
+        router.push("/");
+        return;
+      }
+      setUser(savedUsername);
+
+      const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"], query: { token: savedToken } });
+
+      if ("Notification" in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            // Permissão concedida, agora você pode enviar notificações
+          }
+        });
+      }
+
+      socket.on("chat message", (msg) => {
+        setMessages([...messages, msg]);
+        if (messagesRef.current) {
+          messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+        }
+
+        if (Notification.permission === "granted" && user !== msg.sender) {
+          const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
+            body: msg.message,
+            icon: "https://www.shareicon.net/data/2015/09/18/102854_archlinux_512x512.png"
+          });
+        }
+      });
+
+      return () => {
+        socket.off("chat message");
+      };
+    }
+  }, [router, user, messages]);
 
   const handleReplyTo = (message) => {
     if (replyTo && replyTo.id === message.id) {
@@ -23,57 +62,17 @@ const Chat = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!input.trim()) return;
-    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo, token: token });
+    socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
     setInput("");
     setReplyTo(null);
   };
-
-  useEffect(() => {
-    const savedUsername = localStorage.getItem("username");
-    const token = localStorage.getItem("token");
-
-    if (!savedUsername || !token) {
-      router.push("/");
-      return;
-    }
-    setUser(savedUsername);
-
-    const socket = io("https://socketio.a32fred.repl.co", {
-      transports: ["websocket"],
-    });
-
-    if ("Notification" in window) {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          // Permissão concedida, agora você pode enviar notificações
-        }
-      });
-    }
-
-    socket.on("chat message", (msg) => {
-      setMessages([...messages, msg]);
-      if (messagesRef.current) {
-        messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-      }
-
-      if (Notification.permission === "granted" && user !== msg.sender) {
-        const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
-          body: msg.message,
-        });
-      }
-    });
-
-    return () => {
-      socket.off("chat message");
-    };
-  }, [router, user, messages]);
 
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
-  
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-y-scroll bg-gray-950 text-white" ref={messagesRef}>
@@ -112,7 +111,8 @@ const Chat = () => {
             />
             <button
               className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
-              type="submit"
+              onClick={handleSubmit}
+              disabled={!input.trim()}
             >
               Send
             </button>
@@ -134,7 +134,7 @@ const Chat = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Chat;
