@@ -11,6 +11,9 @@ const Chat = () => {
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
 
+  // Mova a definição do socket para o escopo do componente
+  const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedUsername = localStorage.getItem("username");
@@ -20,8 +23,6 @@ const Chat = () => {
         return;
       }
       setUser(savedUsername);
-
-      const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"], query: { token: savedToken } });
 
       if ("Notification" in window) {
         Notification.requestPermission().then(permission => {
@@ -72,6 +73,7 @@ const Chat = () => {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages]);
+
 
   return (
     <div className="flex flex-col h-screen">
