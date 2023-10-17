@@ -7,14 +7,12 @@ import io from "socket.io-client";
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
+  const [token, setToken] = userState("")
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
-
-  const savedUsername = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
 
   const socket = io("https://socketio.a32fred.repl.co", {
     transports: ["websocket"],
@@ -23,12 +21,17 @@ const Chat = () => {
     }
   });
 
+
   useEffect(() => {
+    const savedUsername = localStorage.getItem("username");
+    const sevedToken = localStorage.getItem("token");
+
     if (!savedUsername || !token) {
       router.push("/");
       return;
     }
     setUser(savedUsername);
+    setToken(sevedToken)
 
 
     if ("Notification" in window) {
@@ -38,6 +41,7 @@ const Chat = () => {
         }
       });
     }
+
 
     socket.on("chat message", (msg) => {
       setMessages([...messages, msg]);
