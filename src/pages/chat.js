@@ -2,9 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import io from "socket.io-client";
 
-const socket = io("https://socketio.a32fred.repl.co", { transports: ["websocket"] });
-
-export default function Chat() {
+const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
   const [messages, setMessages] = useState([]);
@@ -12,6 +10,19 @@ export default function Chat() {
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
+
+  useEffect(() => {
+    // Obtenha o token do localStorage
+    const token = localStorage.getItem("token");
+
+    // Certifique-se de ter o token aqui.
+    const socket = io("https://socketio.a32fred.repl.co", {
+      transports: ["websocket"],
+      query: {
+        token: token, // Envie o token para o servidor socket.io
+      }
+    });
+
 
   const handleReplyTo = (message) => {
     if (replyTo && replyTo.id === message.id) {
