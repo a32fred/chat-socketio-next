@@ -7,7 +7,7 @@ import io from "socket.io-client";
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
-  const [token, setToken] = userState("")
+  const [token, setToken] = useState("")
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState(null);
