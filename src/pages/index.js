@@ -1,26 +1,38 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 
 export default function Introduction() {
   const router = useRouter();
   const [username, setUsername] = useState("");
 
-  useEffect(() => {
-    // Verifica se o nome do usuário já está no localStorage
-    const savedUsername = localStorage.getItem("username");
-    if (savedUsername) {
-      router.push("/chat");
-    }
-  }, [router]);
-
   const handleInputChange = (e) => {
     setUsername(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem("username", username);
-    router.push("/chat");
+
+    try {
+      const response = await fetch('https://supreme-parakeet-rq6w9j9vr73px6p-3001.app.github.dev/api/authenticate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("username", username);
+        router.push("/chat");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Erro ao autenticar usuário:', error);
+    }
   };
 
   return (
