@@ -50,11 +50,18 @@ export default function Chat() {
       if (messagesRef.current) {
         messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
       }
+
+      // Enviar notificação
+      if (Notification.permission === "granted" && user !== msg.sender) {
+        const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
+          body: msg.message,
+        });
+      }
     });
     return () => {
       socket.off("chat message");
     };
-  }, [messages]);
+  }, [messages, user]);
 
   return (
     <div className="flex flex-col h-screen">
