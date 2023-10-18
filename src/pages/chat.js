@@ -12,8 +12,37 @@ const Chat = () => {
   const messagesRef = useRef(null);
   const [socket, setSocket] = useState(null);
 
+  const handleAudioUpload = async (event) => {
+    const audioFile = event.target.files[0];
+    const formData = new FormData();
+    formData.append("audio", audioFile);
+
+    try {
+      const response = await fetch("https://seu-servidor.com/uploadAudio", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const audioData = await response.json();
+        const audioUrl = audioData.audioUrl;
+
+        socket.emit("chat message", {
+          message: "",
+          audioUrl,
+          sender: user,
+          replyTo: replyTo,
+        });
+      } else {
+        console.error("Falha ao fazer upload de áudio.");
+      }
+    } catch (error) {
+      console.error("Erro ao enviar áudio:", error);
+    }
+  };
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const savedUsername = localStorage.getItem("username");
       const savedToken = localStorage.getItem("token");
       if (!savedUsername || !savedToken) {
@@ -21,19 +50,23 @@ const Chat = () => {
         return;
       }
       setUser(savedUsername);
-      const newSocket = io("https://socketio.a32fred.repl.co", {transports: ["websocket"], query: { token: savedToken, userId: savedUsername } });
+      const newSocket = io("https://socketio.a32fred.repl.co", {
+        transports: ["websocket"],
+        query: { token: savedToken, userId: savedUsername },
+      });
       setSocket(newSocket);
 
-      fetch('https://socketio.a32fred.repl.co/loadMessages')
-      .then(response => response.json())
-      .then(data => {
-        setMessages(data);
-      })
-      .catch(error => console.error('Erro ao carregar mensagens:', error));
-
+      fetch("https://socketio.a32fred.repl.co/loadMessages")
+        .then((response) => response.json())
+        .then((data) => {
+          setMessages(data);
+        })
+        .catch((error) =>
+          console.error("Erro ao carregar mensagens:", error)
+        );
 
       newSocket.on("chat message", (msg) => {
-        setMessages(prevMessages => [...prevMessages, msg]);
+        setMessages((prevMessages) => [...prevMessages, msg]);
         if (messagesRef.current) {
           messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
         }
@@ -41,7 +74,7 @@ const Chat = () => {
         if (Notification.permission === "granted" && user !== msg.sender) {
           const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
             body: msg.message,
-            icon: "https://www.shareicon.net/data/2015/09/18/102854_archlinux_512x512.png"
+            icon: "https://www.shareicon.net/data/2015/09/18/102854_archlinux_512x512.png",
           });
         }
       });
@@ -89,7 +122,14 @@ const Chat = () => {
                     </div>
                   </div>
                 )}
-                <p className="text-sm break-words">{message.message}</p>
+                {message.audioUrl ? (
+                  <audio controls>
+                    <source src={message.audioUrl} type="audio/wav" />
+                    Seu navegador não suporta o elemento de áudio.
+                  </audio>
+                ) : (
+                  <p className="text-sm break-words">{message.message}</p>
+                )}
               </div>
             </div>
             <div className={`flex ${message.sender === user ? "justify-end" : "justify-start"} text-xs text-gray-500`}>
@@ -117,6 +157,7 @@ const Chat = () => {
             >
               Send
             </button>
+            <input type="file" accept="audio/*" onChange={handleAudioUpload} />
           </div>
         </form>
         {replyTo && (
