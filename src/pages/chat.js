@@ -12,34 +12,6 @@ const Chat = () => {
   const messagesRef = useRef(null);
   const [socket, setSocket] = useState(null);
 
-  const handleAudioUpload = async (event) => {
-    const audioFile = event.target.files[0];
-    const formData = new FormData();
-    formData.append("audio", audioFile);
-
-    try {
-      const response = await fetch("https://seu-servidor.com/uploadAudio", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const audioData = await response.json();
-        const audioUrl = audioData.audioUrl;
-
-        socket.emit("chat message", {
-          message: "",
-          audioUrl,
-          sender: user,
-          replyTo: replyTo,
-        });
-      } else {
-        console.error("Falha ao fazer upload de áudio.");
-      }
-    } catch (error) {
-      console.error("Erro ao enviar áudio:", error);
-    }
-  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -157,7 +129,6 @@ const Chat = () => {
             >
               Send
             </button>
-            <input type="file" accept="audio/*" onChange={handleAudioUpload} />
           </div>
         </form>
         {replyTo && (
