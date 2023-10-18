@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import io from "socket.io-client";
-//hat
+
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
@@ -11,7 +11,6 @@ const Chat = () => {
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
   const [socket, setSocket] = useState(null);
-
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -67,7 +66,7 @@ const Chat = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!input.trim()) return; // Verifica se a mensagem está vazia
+    if (!input.trim()) return;
     socket.emit("chat message", { message: input, sender: user, replyTo: replyTo });
     setInput("");
     setReplyTo(null);
