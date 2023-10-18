@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import io from "socket.io-client";
-
+//hat
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
