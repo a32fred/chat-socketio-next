@@ -47,7 +47,7 @@ const Chat = () => {
         if (Notification.permission === "granted" && user !== msg.sender) {
           const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
             body: msg.message,
-            icon: "https://www.shareicon.net/data/2015/09/18/102854_archlinux_512x512.png",
+            renotify: true
           });
         }
       });
