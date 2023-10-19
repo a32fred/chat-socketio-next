@@ -47,7 +47,6 @@ const Chat = () => {
         if (Notification.permission === "granted" && user !== msg.sender) {
           const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
             body: msg.message,
-            renotify: true
           });
         }
       });
