@@ -12,7 +12,7 @@ const Chat = () => {
   const [replyTo, setReplyTo] = useState(null);
   const messagesRef = useRef(null);
   const [socket, setSocket] = useState(null);
-  
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedUsername = localStorage.getItem("username");
@@ -28,17 +28,22 @@ const Chat = () => {
       });
       setSocket(newSocket);
 
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            // Permissão concedida, agora você pode enviar notificações.
+          }
+        });
+      }
+
       fetch("https://socketio.a32fred.repl.co/loadMessages")
         .then((response) => response.json())
-        .then((data) => {
-          setMessages(data);
-        })
-        .catch((error) =>
-          console.error("Erro ao carregar mensagens:", error)
-        );
+        .then((data) => setMessages(data))
+        .catch((error) => console.error("Erro ao carregar mensagens:", error));
 
       newSocket.on("chat message", (msg) => {
         setMessages((prevMessages) => [...prevMessages, msg]);
+
         if (Notification.permission === "granted" && user !== msg.sender) {
           const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
             body: msg.message,
@@ -77,3 +82,4 @@ const Chat = () => {
 };
 
 export default Chat;
+
