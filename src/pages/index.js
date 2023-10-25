@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 export default function Introduction() {
   const router = useRouter();
   const [username, setUsername] = useState("");
+
+
+  if (typeof window !== 'undefined' && localStorage.getItem("token") && localStorage.getItem("username")) {
+    router.push("/chat");
+  }
 
   const handleInputChange = (e) => {
     setUsername(e.target.value);
@@ -27,6 +32,26 @@ export default function Introduction() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", username);
         router.push("/chat");
+
+        const responsePublicKey = await fetch('https://socketio.a32fred.repl.co/key');
+        const dataKey = await responsePublicKey.json();
+
+        const registration = await navigator.serviceWorker.ready;
+        const pushSubscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: dataKey.publicKey,
+        });
+
+
+        await fetch('https://socketio.a32fred.repl.co/registerFCMToken', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, subscription: pushSubscription }),
+        });
+
+
       } else {
         alert(data.message);
       }
@@ -34,6 +59,18 @@ export default function Introduction() {
       console.error('Erro ao autenticar usuário:', error);
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' &&'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then((registration) => {
+          console.log('Service Worker registrado com sucesso:', registration);
+        })
+        .catch((error) => {
+          console.error('Erro ao registrar o Service Worker:', error);
+        });
+    }
+  }, []);
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-900 text-white">

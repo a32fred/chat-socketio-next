@@ -5,6 +5,7 @@ import MessageInput from "@/components/MessageInput";
 import MessageList from "@/components/MessageList";
 import ReplyToMessage from "@/components/ReplyToMessage";
 
+
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
@@ -43,12 +44,6 @@ const Chat = () => {
 
       newSocket.on("chat message", (msg) => {
         setMessages((prevMessages) => [...prevMessages, msg]);
-
-        if (Notification.permission === "granted" && user !== msg.sender) {
-          const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
-            body: msg.message,
-          });
-        }
       });
 
       return () => {
