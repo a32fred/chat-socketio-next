@@ -1,17 +1,40 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
-export default function Introduction() {
+const Introduction = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
+  const [recipient, setRecipient] = useState("");
 
+  useEffect(() => {
+    const checkUserToken = async () => {
+      // Verifica se o usuário já está autenticado
+      const token = localStorage.getItem("token");
+      const storedUsername = localStorage.getItem("username");
 
-  if (typeof window !== 'undefined' && localStorage.getItem("token") && localStorage.getItem("username")) {
-    router.push("/chat");
-  }
+      if (token && storedUsername) {
+        router.push("/chat");
+      }
+    };
+
+    checkUserToken();
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      // Registra o Service Worker
+      try {
+        const registration = navigator.serviceWorker.register('/service-worker.js');
+        console.log('Service Worker registrado com sucesso:', registration);
+      } catch (error) {
+        console.error('Erro ao registrar o Service Worker:', error);
+      }
+    }
+  }, [router]);
 
   const handleInputChange = (e) => {
     setUsername(e.target.value);
+  };
+
+  const handleRecipientChange = (e) => {
+    setRecipient(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -32,45 +55,36 @@ export default function Introduction() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", username);
         router.push("/chat");
-
-        const responsePublicKey = await fetch('https://socketio.a32fred.repl.co/key');
-        const dataKey = await responsePublicKey.json();
-
-        const registration = await navigator.serviceWorker.ready;
-        const pushSubscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: dataKey.publicKey,
-        });
-
-
-        await fetch('https://socketio.a32fred.repl.co/registerFCMToken', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, subscription: pushSubscription }),
-        });
-
-
       } else {
         alert(data.message);
       }
     } catch (error) {
       console.error('Erro ao autenticar usuário:', error);
     }
-  };
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' &&'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then((registration) => {
-          console.log('Service Worker registrado com sucesso:', registration);
-        })
-        .catch((error) => {
-          console.error('Erro ao registrar o Service Worker:', error);
-        });
+    try {
+      const responsePublicKey = await fetch('https://socketio.a32fred.repl.co/key');
+      const dataKey = await responsePublicKey.json();
+
+      const registration = await navigator.serviceWorker.ready;
+      const pushSubscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: dataKey.publicKey,
+      });
+
+      await fetch('https://socketio.a32fred.repl.co/registerFCMToken', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, recipient, subscription: pushSubscription }),
+      });
+
+    } catch (error) {
+      console.error("Erro ao registrar FCM Token:", error);
+      alert("Você não receberá notificações, ou porque você negou ou porque seu navegador não suporta. Portanto a aplicação não irá funcionar por estar em desenvolvimento e depender das notificações e suporte a webpush");
     }
-  }, []);
+  };
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
@@ -84,6 +98,13 @@ export default function Introduction() {
             placeholder="Digite seu nome"
             className="bg-slate-800 p-2 rounded-lg w-full mb-4"
           />
+          <input
+            type="text"
+            value={recipient}
+            onChange={handleRecipientChange}
+            placeholder="Digite o destinatário"
+            className="bg-slate-800 p-2 rounded-lg w-full mb-4"
+          />
           <button
             type="submit"
             className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
@@ -95,3 +116,5 @@ export default function Introduction() {
     </div>
   );
 }
+
+export default Introduction;

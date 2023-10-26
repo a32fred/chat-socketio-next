@@ -5,7 +5,6 @@ import MessageInput from "@/components/MessageInput";
 import MessageList from "@/components/MessageList";
 import ReplyToMessage from "@/components/ReplyToMessage";
 
-
 const Chat = () => {
   const router = useRouter();
   const [user, setUser] = useState("");
@@ -29,19 +28,13 @@ const Chat = () => {
       });
       setSocket(newSocket);
 
-      if (Notification.permission !== "granted") {
-        Notification.requestPermission().then((permission) => {
-          if (permission === "granted") {
-            // Permissão concedida, agora você pode enviar notificações.
-          }
-        });
-      }
-
       fetch("https://socketio.a32fred.repl.co/loadMessages")
         .then((response) => response.json())
-        .then((data) => setMessages(data))
+        .then((data) => {
+          setMessages(data)
+        })
         .catch((error) => console.error("Erro ao carregar mensagens:", error));
-
+        
       newSocket.on("chat message", (msg) => {
         setMessages((prevMessages) => [...prevMessages, msg]);
       });
@@ -76,4 +69,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
