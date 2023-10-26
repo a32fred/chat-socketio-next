@@ -46,7 +46,7 @@ const Introduction = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username, recipient }),
       });
 
       const data = await response.json();
@@ -57,6 +57,7 @@ const Introduction = () => {
         router.push("/chat");
       } else {
         alert(data.message);
+        return;
       }
     } catch (error) {
       console.error('Erro ao autenticar usuário:', error);
