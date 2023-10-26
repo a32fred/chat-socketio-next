@@ -28,27 +28,15 @@ const Chat = () => {
       });
       setSocket(newSocket);
 
-      if (Notification.permission !== "granted") {
-        Notification.requestPermission().then((permission) => {
-          if (permission === "granted") {
-            // Permissão concedida, agora você pode enviar notificações.
-          }
-        });
-      }
-
       fetch("https://socketio.a32fred.repl.co/loadMessages")
         .then((response) => response.json())
-        .then((data) => setMessages(data))
+        .then((data) => {
+          setMessages(data)
+        })
         .catch((error) => console.error("Erro ao carregar mensagens:", error));
-
+        
       newSocket.on("chat message", (msg) => {
         setMessages((prevMessages) => [...prevMessages, msg]);
-
-        if (Notification.permission === "granted" && user !== msg.sender) {
-          const notification = new Notification(`${msg.sender} enviou uma mensagem`, {
-            body: msg.message,
-          });
-        }
       });
 
       return () => {
@@ -81,4 +69,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
